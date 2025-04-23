@@ -57,56 +57,72 @@ def Logout(request):
     logout(request)
     return redirect('index')
 
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Doctor, Department
+from .forms import DoctorForm
+from django.contrib import messages
+
 def add_doctor(request):
-    error=""
     if not request.user.is_staff:
         return redirect('login')
-    if request.method=='POST':
-        n = request.POST['name']
-        m = request.POST['mobile']
-        sp = request.POST['special']
-        try:
-            Doctor.objects.create(name=n,mobile=m,special=sp)
-            error="no"
-        except:
-            error="yes"
-    return render(request,'add_doctor.html', locals())
+    
+    if request.method == 'POST':
+        form = DoctorForm(request.POST, request.FILES)
+        if form.is_valid():
+            doctor = form.save(commit=False)
+            doctor.user = request.user
+            doctor.save()
+            messages.success(request, 'Doctor added successfully!')
+            return redirect('view_doctor')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = DoctorForm()
+    
+    return render(request, 'doctor/add_doctor.html', {'form': form})
 
 def view_doctor(request):
     if not request.user.is_staff:
         return redirect('login')
-    doc = Doctor.objects.all()
-    d = {'doc':doc}
-    return render(request,'view_doctor.html', d)
+    
+    doctors = Doctor.objects.all().select_related('department')
+    context = {
+        'doctors': doctors,
+        'total_doctors': doctors.count()
+    }
+    return render(request, 'doctor/view_doctor.html', context)
 
-def Delete_Doctor(request,pid):
+def edit_doctor(request, pk):
     if not request.user.is_staff:
         return redirect('login')
-    doctor = Doctor.objects.get(id=pid)
-    doctor.delete()
-    return redirect('view_doctor.html')
+    
+    doctor = get_object_or_404(Doctor, pk=pk)
+    
+    if request.method == 'POST':
+        form = DoctorForm(request.POST, request.FILES, instance=doctor)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Doctor updated successfully!')
+            return redirect('view_doctor')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = DoctorForm(instance=doctor)
+    
+    return render(request, 'doctor/edit_doctor.html', {'form': form, 'doctor': doctor})
 
-def edit_doctor(request,pid):
-    error = ""
-    if not request.user.is_authenticated:
+def delete_doctor(request, pk):
+    if not request.user.is_staff:
         return redirect('login')
-    user = request.user
-    doctor = Doctor.objects.get(id=pid)
-    if request.method == "POST":
-        n1 = request.POST['name']
-        m1 = request.POST['mobile']
-        s1 = request.POST['special']
-
-        doctor.name = n1
-        doctor.mobile = m1
-        doctor.special = s1
-
-        try:
-            doctor.save()
-            error = "no"
-        except:
-            error = "yes"
-    return render(request, 'edit_doctor.html', locals())
+    
+    doctor = get_object_or_404(Doctor, pk=pk)
+    
+    if request.method == 'POST':
+        doctor.delete()
+        messages.success(request, 'Doctor deleted successfully!')
+        return redirect('view_doctor')
+    
+    return render(request, 'doctor/confirm_delete.html', {'doctor': doctor})
 
 def add_patient(request):
     error = ""

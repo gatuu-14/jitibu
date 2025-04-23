@@ -1,0 +1,312 @@
+{% extends 'admin_nav.html' %}
+{% load static %}
+{% block content %}
+
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    :root {
+      --primary-blue: #1a365d;
+      --secondary-blue: #2c5282;
+      --accent-teal: #38b2ac;
+      --accent-green: #48bb78;
+      --accent-orange: #ed8936;
+      --text-light: #f7fafc;
+      --text-gray: #718096;
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    body {
+      background-color: #f8fafc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Dashboard Cards */
+    .dashboard-card {
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s ease;
+      box-shadow: var(--card-shadow);
+      color: var(--text-light);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+      z-index: 1;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-doctors {
+      background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+    }
+
+    .card-patients {
+      background: linear-gradient(135deg, #2f855a, var(--accent-green));
+    }
+
+    .card-appointments {
+      background: linear-gradient(135deg, #9c4221, var(--accent-orange));
+    }
+
+    .card-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-stats {
+      flex: 1;
+    }
+
+    .card-stats h3 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-stats h4 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 0;
+    }
+
+    .card-stats a {
+      color: var(--text-light);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .card-stats a:hover {
+      text-decoration: underline;
+      opacity: 0.9;
+    }
+
+    .card-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
+
+    /* Recent Activity Section */
+    .recent-activity {
+      background-color: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--card-shadow);
+      margin-top: 2rem;
+    }
+
+    .recent-activity h2 {
+      color: var(--primary-blue);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #ebf8ff;
+      color: var(--primary-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .activity-details {
+      flex: 1;
+    }
+
+    .activity-title {
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+      color: var(--text-gray);
+      font-size: 0.875rem;
+    }
+
+    /* Footer */
+    .dashboard-footer {
+      text-align: center;
+      margin-top: 3rem;
+      padding: 2rem 0;
+      color: var(--text-gray);
+    }
+
+    .footer-heart {
+      color: #e53e3e;
+      animation: heartbeat 1.5s infinite;
+    }
+
+    @keyframes heartbeat {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.1); }
+      50% { transform: scale(1); }
+      75% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .card-content {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .card-icon {
+        margin-top: 1rem;
+      }
+
+      .card-stats h3 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+  <div class="container-fluid py-4">
+    <div class="row">
+      <!-- Doctors Card -->
+      <div class="col-md-4">
+        <div class="dashboard-card card-doctors">
+          <div class="card-content">
+            <div class="card-stats">
+              <h3>{{ dc }}</h3>
+              <h4><a href="{% url 'view_doctor' %}">Total Doctors</a></h4>
+            </div>
+            <div class="card-icon">
+              <i class="fas fa-user-md"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Patients Card -->
+      <div class="col-md-4">
+        <div class="dashboard-card card-patients">
+          <div class="card-content">
+            <div class="card-stats">
+              <h3>{{ pc }}</h3>
+              <h4><a href="{% url 'view_patient' %}">Total Patients</a></h4>
+            </div>
+            <div class="card-icon">
+              <i class="fas fa-procedures"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appointments Card -->
+      <div class="col-md-4">
+        <div class="dashboard-card card-appointments">
+          <div class="card-content">
+            <div class="card-stats">
+              <h3>{{ ac }}</h3>
+              <h4><a href="{% url 'view_appointment' %}">Total Appointments</a></h4>
+            </div>
+            <div class="card-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="recent-activity">
+      <h2><i class="fas fa-history me-2"></i>Recent Activity</h2>
+      
+      <div class="activity-item">
+        <div class="activity-icon">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="activity-details">
+          <div class="activity-title">New Patient Registration</div>
+          <div class="activity-time">Today, 10:45 AM</div>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon">
+          <i class="fas fa-calendar-plus"></i>
+        </div>
+        <div class="activity-details">
+          <div class="activity-title">Appointment Scheduled</div>
+          <div class="activity-time">Yesterday, 3:30 PM</div>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-icon">
+          <i class="fas fa-file-medical"></i>
+        </div>
+        <div class="activity-details">
+          <div class="activity-title">Medical Report Uploaded</div>
+          <div class="activity-time">Yesterday, 11:20 AM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+      <p class="mb-1">Copyright &copy; <script>document.write(new Date().getFullYear())</script> All Rights Reserved</p>
+      <p>Made with <span class="footer-heart"><i class="fas fa-heart"></i></span> by Linda Mputhia</p>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Simple animation for cards on load
+    document.addEventListener('DOMContentLoaded', function() {
+      const cards = document.querySelectorAll('.dashboard-card');
+      cards.forEach((card, index) => {
+        setTimeout(() => {
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, index * 150);
+      });
+    });
+  </script>
+</body>
+</html>
+{% endblock content %}
